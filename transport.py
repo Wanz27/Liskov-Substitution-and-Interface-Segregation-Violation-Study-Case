@@ -35,10 +35,21 @@ class IDronePilotable(ABC):
 # SOLUSI ISP-3: Pecah IBookingOps per level akses
 
 # ════════════════════════════════════════════════════════════════
+class IRideBooking(ABC):
+    @abstractmethod
+    def book_ride(self, dest): pass
 
+class IDeliveryBooking(ABC):
+    @abstractmethod
+    def book_delivery(self): pass
 
+class IFlightBooking(ABC):
+    @abstractmethod
+    def book_flight(self): pass
 
-
+class IMaintenance(ABC):
+    @abstractmethod
+    def schedule_maintenance(self): pass
 
 # ════════════════════════════════════════════════════════════════
 
@@ -68,11 +79,15 @@ class DroneDelivery(IFareCalculable, IChargeable, IFlyable):
 # SOLUSI LSP-3: ElectricScooter get_fare() hormati kontrak parent
 
 # ════════════════════════════════════════════════════════════════
+class ElectricScooter(IFareCalculable, IChargeable, IGroundNavigable):
+    def charge_battery(self):
+        return "Skuter listrik mengisi daya"
 
+    def navigate_road(self):
+        return "Skuter listrik melewati jalur khusus"
 
-
-
-
+    def get_fare(self, km: float) -> float:
+        return max(km * 3500, 1000)   # fix LSP
 # ════════════════════════════════════════════════════════════════
 
 # SOLUSI ISP-2: Driver hanya implement interface sesuai jenisnya
@@ -87,7 +102,28 @@ class DroneDelivery(IFareCalculable, IChargeable, IFlyable):
 # SOLUSI ISP-3: User sesuai level akses masing-masing
 
 # ════════════════════════════════════════════════════════════════
+class RegularUser(IRideBooking, IDeliveryBooking):
+    def book_ride(self, dest):
+        return f"Memesan perjalanan ke {dest}"
 
+    def book_delivery(self):
+        return "Memesan layanan pengiriman"
+
+
+class PremiumUser(IRideBooking, IDeliveryBooking, IFlightBooking):
+    def book_ride(self, dest):
+        return f"Memesan perjalanan ke {dest}"
+
+    def book_delivery(self):
+        return "Memesan layanan pengiriman"
+
+    def book_flight(self):
+        return "Memesan layanan drone flight"
+
+
+class FleetAdmin(IMaintenance):
+    def schedule_maintenance(self):
+        return "Menjadwalkan perawatan armada"
 
 
 
