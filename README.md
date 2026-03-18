@@ -1,18 +1,4 @@
-# Liskov-Substitution-and-Interface-Segregation-Violation-Study-Case
-
 # 📋 Ringkasan Perubahan LSP & ISP
-### Studi Kasus: Sistem Transportasi Online (Python)
-
----
-
-## 🗂️ File yang Terlibat
-
-| File | Status | Keterangan |
-|------|--------|------------|
-| `transport.py` | ❌ Bermasalah | Mengandung 3 pelanggaran LSP + 3 pelanggaran ISP |
-| `transport_rev.py` | ✅ Diperbaiki | Semua pelanggaran diselesaikan |
-
----
 
 ## 🔴 LSP — Perubahan pada Kelas Kendaraan
 
