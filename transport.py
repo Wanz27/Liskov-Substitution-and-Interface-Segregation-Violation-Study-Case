@@ -1,80 +1,46 @@
 from abc import ABC, abstractmethod
 
-# ────────────────────────────────────────────────────────────────
-
-# [ISP-1] Interface VehicleOps terlalu gemuk — menggabungkan
-
-#         method untuk semua jenis kendaraan dalam 1 interface
-
-# ────────────────────────────────────────────────────────────────
-
-class IVehicleOps(ABC):  # [ISP-1] Fat interface — semua method digabung
+class IVehicleOps(ABC): 
     @abstractmethod
-    def refuel(self): pass            # hanya untuk bensin/solar
+    def refuel(self): pass            
 
     @abstractmethod
-    def charge_battery(self): pass    # hanya untuk kendaraan listrik
+    def charge_battery(self): pass    
 
     @abstractmethod
-    def navigate_road(self): pass     # hanya untuk kendaraan darat
+    def navigate_road(self): pass     
 
     @abstractmethod
-    def fly(self): pass               # hanya untuk drone/helikopter
+    def fly(self): pass               
 
     @abstractmethod
-    def get_fare(self, km): pass      # semua kendaraan punya ini
+    def get_fare(self, km): pass     
 
-# ────────────────────────────────────────────────────────────────
-
-# [ISP-2] Interface IDriverOps menggabungkan kemampuan semua
-
-#         jenis driver — padahal tiap driver hanya bisa 1 jenis
-
-# ────────────────────────────────────────────────────────────────
-
-class IDriverOps(ABC):  # [ISP-2] Driver tidak perlu semua kemampuan ini
+class IDriverOps(ABC):  
     @abstractmethod
-    def drive_car(self): pass         # hanya untuk driver mobil
+    def drive_car(self): pass        
 
     @abstractmethod
-    def ride_motorcycle(self): pass   # hanya untuk driver motor
+    def ride_motorcycle(self): pass   
 
     @abstractmethod
-    def pilot_drone(self): pass       # hanya untuk operator drone
+    def pilot_drone(self): pass       
+    @abstractmethod
+    def get_rating(self): pass        
+
+class IBookingOps(ABC): 
+    @abstractmethod
+    def book_ride(self, dest): pass    
 
     @abstractmethod
-    def get_rating(self): pass        # semua driver punya ini
-
-# ────────────────────────────────────────────────────────────────
-
-# [ISP-3] Interface IBookingOps menggabungkan semua operasi
-
-#         booking — user biasa tidak butuh semua ini
-
-# ────────────────────────────────────────────────────────────────
-
-class IBookingOps(ABC):  # [ISP-3] Terlalu banyak operasi untuk satu interface
+    def book_delivery(self): pass     
     @abstractmethod
-    def book_ride(self, dest): pass    # untuk user biasa
+    def book_flight(self): pass       
 
     @abstractmethod
-    def book_delivery(self): pass     # untuk user biasa
+    def schedule_maintenance(self): pass 
 
-    @abstractmethod
-    def book_flight(self): pass       # hanya untuk user premium
-
-    @abstractmethod
-    def schedule_maintenance(self): pass # hanya untuk admin armada
-
-# ────────────────────────────────────────────────────────────────
-
-# [LSP-1] Bicycle extends IVehicleOps tapi tidak bisa refuel,
-
-#         charge_battery, maupun fly — crash saat dipanggil!
-
-# ────────────────────────────────────────────────────────────────
-
-class Bicycle(IVehicleOps):  # [LSP-1] Sepeda tidak bisa refuel/charge/fly
+class Bicycle(IVehicleOps):  
 
     def refuel(self):
         raise NotImplementedError("Sepeda tidak pakai bahan bakar!")
@@ -90,16 +56,8 @@ class Bicycle(IVehicleOps):  # [LSP-1] Sepeda tidak bisa refuel/charge/fly
 
     def get_fare(self, km):
         return km * 2000
-      
-# ────────────────────────────────────────────────────────────────
 
-# [LSP-2] DroneDelivery extends IVehicleOps tapi tidak bisa
-
-#         navigate_road dan refuel — drone terbang & pakai baterai
-
-# ────────────────────────────────────────────────────────────────
-
-class DroneDelivery(IVehicleOps):  # [LSP-2] Drone tidak lewat jalan & tidak isi bensin
+class DroneDelivery(IVehicleOps):  
 
     def refuel(self):
         raise NotImplementedError("Drone pakai baterai, bukan bensin!")
@@ -116,17 +74,7 @@ class DroneDelivery(IVehicleOps):  # [LSP-2] Drone tidak lewat jalan & tidak isi
     def get_fare(self, km):
         return km * 8000
 
-# ────────────────────────────────────────────────────────────────
-
-# [LSP-3] ElectricScooter override get_fare() mengembalikan 0
-
-#         untuk jarak < 1km → melanggar kontrak parent yang
-
-#         menjamin return selalu > 0 untuk km > 0
-
-# ────────────────────────────────────────────────────────────────
-
-class ElectricScooter(IVehicleOps):  # [LSP-3] Melanggar kontrak get_fare()
+class ElectricScooter(IVehicleOps): 
 
     def refuel(self):
         raise NotImplementedError("Skuter listrik tidak pakai bensin!")
@@ -141,21 +89,10 @@ class ElectricScooter(IVehicleOps):  # [LSP-3] Melanggar kontrak get_fare()
         raise NotImplementedError("Skuter listrik tidak bisa terbang!")
 
     def get_fare(self, km):
-
-        # ❌ Melanggar kontrak: mengembalikan 0 saat km < 1
-
-        if km < 1: return 0   # kontrak: get_fare(km>0) harus selalu > 0!
+        if km < 1: return 0  
         return km * 3500
 
-# ────────────────────────────────────────────────────────────────
-
-# [ISP-2 dampak] CarDriver dipaksa implement ride_motorcycle
-
-#               dan pilot_drone yang tidak relevan
-
-# ────────────────────────────────────────────────────────────────
-
-class CarDriver(IDriverOps):  # [ISP-2 dampak] Dipaksa implement semua method driver
+class CarDriver(IDriverOps):  
     def drive_car(self):
         return "Driver mengemudikan mobil"
 
@@ -167,7 +104,7 @@ class CarDriver(IDriverOps):  # [ISP-2 dampak] Dipaksa implement semua method dr
 
     def get_rating(self): return 4.8
 
-class MotorcycleDriver(IDriverOps):  # [ISP-2 dampak] Sama, dipaksa implement semuanya
+class MotorcycleDriver(IDriverOps):  
     def drive_car(self):
         raise NotImplementedError("Driver motor tidak mengemudikan mobil!")
 
@@ -179,15 +116,7 @@ class MotorcycleDriver(IDriverOps):  # [ISP-2 dampak] Sama, dipaksa implement se
 
     def get_rating(self): return 4.6
 
-# ────────────────────────────────────────────────────────────────
-
-# [ISP-3 dampak] RegularUser dipaksa implement book_flight
-
-#               dan schedule_maintenance yang tidak relevan
-
-# ────────────────────────────────────────────────────────────────
-
-class RegularUser(IBookingOps):  # [ISP-3 dampak] User biasa dipaksa punya semua fitur
+class RegularUser(IBookingOps):  
     def book_ride(self, dest):
         return f"Memesan perjalanan ke {dest}"
 
@@ -200,33 +129,20 @@ class RegularUser(IBookingOps):  # [ISP-3 dampak] User biasa dipaksa punya semua
     def schedule_maintenance(self):
         raise NotImplementedError("User bukan admin armada!")
 
-# ────────────────────────────────────────────────────────────────
 
-# Penggunaan yang menunjukkan masalah LSP:
-# Fungsi ini harusnya aman untuk semua IVehicleOps —
-# tapi akan CRASH saat menerima Bicycle, Drone, atau Scooter!
-
-# ────────────────────────────────────────────────────────────────
-
-def prepare_vehicle(v: IVehicleOps):  # [LSP] Crash untuk Bicycle/Drone/Scooter
-    v.refuel()          # ❌ Bicycle → crash, DroneDelivery → crash
-    v.navigate_road()   # ❌ DroneDelivery → crash
-    return v.get_fare(0.5)  # ❌ ElectricScooter → return 0 (melanggar kontrak)
-
-# ────────────────────────────────────────────────────────────────
-
-# PENGGUNAAN — semua masalah terlihat saat runtime
-
-# ────────────────────────────────────────────────────────────────
+def prepare_vehicle(v: IVehicleOps):  
+    v.refuel()          
+    v.navigate_road()   
+    return v.get_fare(0.5)  
 
 bike   = Bicycle()
 drone  = DroneDelivery()
 scooter= ElectricScooter()
 user   = RegularUser()
 
-prepare_vehicle(bike)     # ❌ CRASH: NotImplementedError refuel()
-prepare_vehicle(drone)    # ❌ CRASH: NotImplementedError refuel()
-prepare_vehicle(scooter)  # ❌ SILENT BUG: get_fare(0.5) → 0, bukan 1750
+prepare_vehicle(bike)     
+prepare_vehicle(drone)    
+prepare_vehicle(scooter)  
 
-user.book_flight()        # ❌ CRASH: user biasa tidak bisa book flight
-user.schedule_maintenance() # ❌ CRASH: user bukan admin
+user.book_flight()        
+user.schedule_maintenance() 
