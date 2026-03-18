@@ -1,19 +1,31 @@
 from abc import ABC, abstractmethod
 
 # ════════════════════════════════════════════════════════════════
+# SOLUSI ISP-1
+# ════════════════════════════════════════════════════════════════
+class IFareCalculable(ABC):
+    @abstractmethod
+    def get_fare(self, km) -> float: pass
 
-# SOLUSI ISP-1: Pecah IVehicleOps menjadi interface kecil
+class IRefuelable(ABC):
+    @abstractmethod
+    def refuel(self): pass
+
+class IChargeable(ABC):
+    @abstractmethod
+    def charge_battery(self): pass
+
+class IGroundNavigable(ABC):
+    @abstractmethod
+    def navigate_road(self): pass
+
+class IFlyable(ABC):     
+    @abstractmethod
+    def fly(self): pass
 
 # ════════════════════════════════════════════════════════════════
-
-
-
-
-# ════════════════════════════════════════════════════════════════
-
-# SOLUSI ISP-2: Pecah IDriverOps menjadi interface per kemampuan
-
-# ════════════════════════════════════════════════════════════════
+# SOLUSI ISP-2
+# ═══════════════════════════════════════════════=════════════════
 class IDriverRating(ABC):
     @abstractmethod
     def get_rating(self) -> float: pass
@@ -31,9 +43,7 @@ class IDronePilotable(ABC):
     def pilot_drone(self): pass
 
 # ════════════════════════════════════════════════════════════════
-
-# SOLUSI ISP-3: Pecah IBookingOps per level akses
-
+# SOLUSI ISP-3
 # ════════════════════════════════════════════════════════════════
 class IRideBooking(ABC):
     @abstractmethod
@@ -52,18 +62,17 @@ class IMaintenance(ABC):
     def schedule_maintenance(self): pass
 
 # ════════════════════════════════════════════════════════════════
+# SOLUSI LSP-1
+# ════════════════════════════════════════════════════════════════
+class Bicycle(IFareCalculable, IGroundNavigable):
+    def navigate_road(self):
+        return "Sepeda mengikuti jalur sepeda"
 
-# SOLUSI LSP-1: Bicycle hanya implement interface yang relevan
+    def get_fare(self, km) -> float:
+        return km * 2000
 
 # ════════════════════════════════════════════════════════════════
-
-
-
-
-# ════════════════════════════════════════════════════════════════
-
-# SOLUSI LSP-2: DroneDelivery hanya implement IChargeable + IFlyable
-
+# SOLUSI LSP-2
 # ════════════════════════════════════════════════════════════════
 class DroneDelivery(IFareCalculable, IChargeable, IFlyable):
     def charge_battery(self):
@@ -74,10 +83,9 @@ class DroneDelivery(IFareCalculable, IChargeable, IFlyable):
         
     def get_fare(self, km: float) -> float:
         return km * 8000
+        
 # ════════════════════════════════════════════════════════════════
-
-# SOLUSI LSP-3: ElectricScooter get_fare() hormati kontrak parent
-
+# SOLUSI LSP-3
 # ════════════════════════════════════════════════════════════════
 class ElectricScooter(IFareCalculable, IChargeable, IGroundNavigable):
     def charge_battery(self):
@@ -87,20 +95,19 @@ class ElectricScooter(IFareCalculable, IChargeable, IGroundNavigable):
         return "Skuter listrik melewati jalur khusus"
 
     def get_fare(self, km: float) -> float:
-        return max(km * 3500, 1000)   # fix LSP
+        return max(km * 3500, 1000)
+        
 # ════════════════════════════════════════════════════════════════
+# SOLUSI ISP-2
+# ════════════════════════════════════════════════════════════════
+class CarDriver(ICarDriver):
+    def drive_car(self):
+        return "Driver mengemudikan mobil"
 
-# SOLUSI ISP-2: Driver hanya implement interface sesuai jenisnya
+    def get_rating(self): return 4.8
 
 # ════════════════════════════════════════════════════════════════
-
-
-
-
-# ════════════════════════════════════════════════════════════════
-
-# SOLUSI ISP-3: User sesuai level akses masing-masing
-
+# SOLUSI ISP-3
 # ════════════════════════════════════════════════════════════════
 class RegularUser(IRideBooking, IDeliveryBooking):
     def book_ride(self, dest):
@@ -125,28 +132,14 @@ class FleetAdmin(IMaintenance):
     def schedule_maintenance(self):
         return "Menjadwalkan perawatan armada"
 
-
-
-# ════════════════════════════════════════════════════════════════
-
-# Fungsi sekarang aman — hanya terima kontrak yang tepat
-
-# ════════════════════════════════════════════════════════════════
-
 def calculate_fare(v: IFareCalculable, km: float) -> float:
-    return v.get_fare(km) # Aman untuk SEMUA kendaraan — hanya butuh get_fare()
+    return v.get_fare(km)
 
 def prepare_ground_vehicle(v: IGroundNavigable):
-    return v.navigate_road() # Aman — hanya kendaraan darat yang masuk ke sini
+    return v.navigate_road()
 
 def charge_up(v: IChargeable):
-    return v.charge_battery() # Aman — hanya kendaraan listrik yang masuk ke sini
-
-# ════════════════════════════════════════════════════════════════
-
-# Penggunaan — semua aman, tidak ada yang crash
-
-# ════════════════════════════════════════════════════════════════
+    return v.charge_battery()
 
 bike    = Bicycle()
 drone   = DroneDelivery()
@@ -155,12 +148,12 @@ user    = RegularUser()
 premium = PremiumUser()
 admin   = FleetAdmin()
 
-calculate_fare(bike, 3.0)      # ✅ 6000
-calculate_fare(drone, 3.0)     # ✅ 24000
-calculate_fare(scooter, 0.5)   # ✅ 2750 (bukan 0!)
-prepare_ground_vehicle(bike)   # ✅ aman, bike adalah IGroundNavigable
+calculate_fare(bike, 3.0)   
+calculate_fare(drone, 3.0)     
+calculate_fare(scooter, 0.5)   
+prepare_ground_vehicle(bike)  
 
-charge_up(drone)               # ✅ aman, drone adalah IChargeable
-user.book_ride("Bandara")      # ✅ aman
-premium.book_flight()           # ✅ aman, hanya PremiumUser yang punya ini
-admin.schedule_maintenance()    # ✅ aman, hanya FleetAdmin yang punya ini
+charge_up(drone)             
+user.book_ride("Bandara")     
+premium.book_flight()          
+admin.schedule_maintenance()    
