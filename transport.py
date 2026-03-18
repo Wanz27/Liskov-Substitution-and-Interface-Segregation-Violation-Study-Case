@@ -14,10 +14,21 @@ from abc import ABC, abstractmethod
 # SOLUSI ISP-2: Pecah IDriverOps menjadi interface per kemampuan
 
 # ════════════════════════════════════════════════════════════════
+class IDriverRating(ABC):
+    @abstractmethod
+    def get_rating(self) -> float: pass
 
+class ICarDrivable(ABC):
+    @abstractmethod
+    def drive_car(self): pass
 
+class IMotorcycleRidable(ABC):
+    @abstractmethod
+    def ride_motorcycle(self): pass
 
-
+class IDronePilotable(ABC):
+    @abstractmethod
+    def pilot_drone(self): pass
 
 # ════════════════════════════════════════════════════════════════
 
@@ -43,11 +54,15 @@ from abc import ABC, abstractmethod
 # SOLUSI LSP-2: DroneDelivery hanya implement IChargeable + IFlyable
 
 # ════════════════════════════════════════════════════════════════
-
-
-
-
-
+class DroneDelivery(IFareCalculable, IChargeable, IFlyable):
+    def charge_battery(self):
+        return "Drone mengisi daya baterai"
+        
+    def fly(self):
+        return "Drone terbang menuju tujuan pengiriman"
+        
+    def get_fare(self, km: float) -> float:
+        return km * 8000
 # ════════════════════════════════════════════════════════════════
 
 # SOLUSI LSP-3: ElectricScooter get_fare() hormati kontrak parent
